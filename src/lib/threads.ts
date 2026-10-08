@@ -60,7 +60,7 @@ export function saveThreadMessages(id: string, messages: UIMessage[]) {
   const threads = readThreads();
   const index = threads.findIndex((t) => t.id === id);
   if (index === -1) return;
-  const existing: ChatThread = threads[index];
+  const existing = threads[index] as ChatThread;
   const updated: ChatThread = {
     id: existing.id,
     title: existing.title,
