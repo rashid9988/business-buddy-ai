@@ -27,7 +27,7 @@ When the user provides an industry and a country, respond with a well-structured
 Keep language simple and encouraging — assume the user is a student with limited budget and experience. Use concrete numbers and local context for the given country (currency, market size ranges, typical costs) rather than generic advice. After the plan, invite follow-up questions and offer to go deeper on any section.`;
 
 export async function handleChat(request: Request) {
-  const apiKey = process.env.LOVABLE_API_KEY;
+  const apiKey = process.env["LOVABLE_API_KEY"];
   if (!apiKey) {
     return Response.json(
       { error: "AI is not configured yet. Please try again later." },

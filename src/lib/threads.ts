@@ -60,7 +60,8 @@ export function saveThreadMessages(id: string, messages: UIMessage[]) {
   const threads = readThreads();
   const index = threads.findIndex((t) => t.id === id);
   if (index === -1) return;
-  threads[index] = { ...threads[index], messages, updatedAt: Date.now() };
+  const existing = threads[index];
+  threads[index] = { ...existing, messages, updatedAt: Date.now() };
   writeThreads(threads);
 }
 
