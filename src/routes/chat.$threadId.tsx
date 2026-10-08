@@ -54,9 +54,11 @@ function ChatPage() {
   return <ChatWindow key={thread.id} thread={thread} />;
 }
 
-function ChatWindow({ thread }: { thread: NonNullable<ReturnType<typeof getThread>> }) {
-  const kickoffSentRef = useRef(false);
+// Module-level guard: survives StrictMode double-mounts, resets on page reload
+// (a reloaded thread already has saved messages, so no kickoff is needed then).
+const kickedOffThreadIds = new Set<string>();
 
+function ChatWindow({ thread }: { thread: NonNullable<ReturnType<typeof getThread>> }) {
   const { messages, sendMessage, status, stop } = useChat({
     id: thread.id,
     messages: thread.messages,
@@ -72,10 +74,15 @@ function ChatWindow({ thread }: { thread: NonNullable<ReturnType<typeof getThrea
 
   // Kick off the business plan request once for a brand-new thread.
   useEffect(() => {
-    if (kickoffSentRef.current) return;
     if (thread.messages.length > 0) return;
-    kickoffSentRef.current = true;
-    sendMessage({ text: buildKickoffMessage(thread.industry, thread.country) });
+    if (kickedOffThreadIds.has(thread.id)) return;
+    kickedOffThreadIds.add(thread.id);
+    void sendMessage({
+      text: buildKickoffMessage(thread.industry, thread.country),
+    }).catch((error: unknown) => {
+      kickedOffThreadIds.delete(thread.id);
+      console.error("Kickoff failed", error);
+    });
   }, [thread, sendMessage]);
 
   // Persist messages to localStorage whenever they change and the stream settles.
